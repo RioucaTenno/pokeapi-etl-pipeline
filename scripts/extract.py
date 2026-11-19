@@ -6,11 +6,6 @@ import os
 BASE_URL = "https://pokeapi.co/api/v2/pokemon"
 
 def fetch_pokemon_details(limit=10, offset=0):
-    """
-    Забирает список покемонов и затем детальную информацию по каждому.
-    limit: сколько покемонов забрать
-    offset: с какого по счету начать (для пагинации)
-    """
     url = f"{BASE_URL}?limit={limit}&offset={offset}"
     print(f"Запрашиваем список покемонов: {url}")
     
@@ -31,12 +26,11 @@ def fetch_pokemon_details(limit=10, offset=0):
         if detail_response.status_code == 200:
             pokemon_data.append(detail_response.json())
         
-        time.sleep(0.5) 
+        time.sleep(0.5)
         
     return pokemon_data
 
 def save_to_json(data, filepath):
-    """Сохраняет список словарей в JSON файл"""
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     
     with open(filepath, 'w', encoding='utf-8') as f:
@@ -48,6 +42,10 @@ if __name__ == "__main__":
     
     pokemons = fetch_pokemon_details(limit=20, offset=0)
     
-    save_to_json(pokemons, "data/raw/pokemons_raw.json")
-    
+    if os.path.exists("/opt/airflow"):
+        filepath = "/opt/airflow/data/raw/pokemons_raw.json"
+    else:
+        filepath = "data/raw/pokemons_raw.json"
+        
+    save_to_json(pokemons, filepath)
     print(f"✅ Готово! Собрано {len(pokemons)} записей.")
